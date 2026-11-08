@@ -29,3 +29,15 @@ def test_marker_gets_one_coloured_box_per_status():
     assert colour_of_box(0) == STATUS_BGR[schedule.DONE]
     assert colour_of_box(1) == STATUS_BGR[schedule.PENDING]
     assert colour_of_box(2) == STATUS_BGR[schedule.NONE]
+
+
+def test_demo_camera_marker_is_always_detected():
+    import time
+
+    from medguiar.ar import load_calibration
+    from medguiar.camera import DemoCamera
+
+    camera, renderer = DemoCamera(), ARRenderer(*load_calibration())
+    for i in range(20):
+        camera._start = time.time() - i * 0.5
+        assert renderer.render(camera.read(), {})[1]
