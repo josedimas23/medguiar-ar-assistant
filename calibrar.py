@@ -1,3 +1,8 @@
+# ChArUco camera calibration script provided by the teaching staff of the course
+# "Computación Ubicua e Inteligencia Ambiental" (University of Granada).
+# Included with credit for reproducibility; not covered by this repository's MIT license.
+# Output: camara.py (camera matrix and distortion coefficients used by MedGuiAR.py).
+
 import cv2
 import numpy as np
 import time
