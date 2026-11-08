@@ -10,6 +10,7 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+.pytest_cache/
 
 # Datos personales generados al usar la app (fotos de caras y usuarios): solo en local
 imagenes/
