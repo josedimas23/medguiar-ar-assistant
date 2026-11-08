@@ -1,4 +1,10 @@
-DEPENDECIAS:
+# MedGuiAR · Asistente de medicación con realidad aumentada
+
+Acceso por reconocimiento facial, gestión de la medicación por voz y calendario semanal proyectado sobre marcadores ArUco (OpenCV).
+
+**Autor:** Jose Dimas Sánchez Casas
+
+## Dependencias
 
     1. Las librerías necesarias para el ejecutable son:
 
