@@ -13,13 +13,11 @@ A desktop medication assistant for older adults. You log in by looking at the ca
 
 ## Screenshots
 
-<!--
-TODO: add the three screenshots to docs/screenshots/ and uncomment this block.
+![Weekly panel: the AR calendar drawn on the ArUco marker next to the week view](docs/screenshots/main.png)
 
-| Welcome | Face login | Weekly panel with AR |
-| --- | --- | --- |
-| ![Welcome screen](docs/screenshots/welcome.png) | ![Face login](docs/screenshots/login.png) | ![Main panel with the AR calendar on the marker](docs/screenshots/main.png) |
--->
+*Weekly panel in demo mode (`make demo`). The ArUco marker is detected and each weekday is drawn next to it in blue (nothing scheduled), red (pending) or green (all taken), matching the week view on the right. The camera feed in this screenshot is simulated.*
+
+![Welcome screen](docs/screenshots/welcome.png)
 
 ```mermaid
 flowchart LR
@@ -39,6 +37,7 @@ flowchart LR
 - **Push-to-talk voice commands (Spanish).** Hold the space bar or the on-screen button and say *«añadir lunes paracetamol»*, *«tomado lunes paracetamol»*, *«quitar lunes paracetamol»*, *«consulta»* or *«salir»*. Audio is transcribed with the Google Web Speech API, which needs an internet connection.
 - **Augmented-reality calendar.** When an ArUco marker (`DICT_5X5_50`) placed on the pillbox is in view, seven boxes are drawn along it, warped to the marker's perspective. Each box is blue (nothing scheduled), red (pending) or green (all taken). Frames are undistorted with a ChArUco camera calibration.
 - **Single, responsive window.** The camera, week view, add form and voice panel live in one window that adapts to its size, and all feedback is shown on screen.
+- **Demo mode.** `make demo` runs the app with a simulated camera and an example user, so it can be tried without a webcam and without saving anything.
 
 ## Tech stack
 
@@ -89,6 +88,7 @@ uv pip install --python .venv -r requirements.txt
 **Other commands**
 
 ```bash
+make demo        # simulated camera + example user, no webcam needed (voice still uses the microphone)
 make test        # unit tests, no camera or microphone needed
 make calibrate   # recalibrate your camera with a ChArUco board and regenerate camara.py
 ```

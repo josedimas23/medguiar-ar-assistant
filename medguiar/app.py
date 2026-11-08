@@ -11,7 +11,7 @@ from PIL import Image
 
 from . import schedule, storage, voice
 from .ar import STATUS_HEX, ARRenderer, load_calibration
-from .camera import Camera
+from .camera import Camera, DemoCamera
 from .face_auth import FaceAuthenticator, count_faces
 
 CAMERA_SIZE = (640, 480)
@@ -29,6 +29,16 @@ TOAST_STYLES = {  # (background, text)
 STATUS_TEXT = {schedule.NONE: "Sin pastillas", schedule.PENDING: "Pendiente", schedule.DONE: "Tomado"}
 TALK_KEY = "space"
 TALK_IDLE = "Mantén pulsado para hablar"
+
+
+def demo_user():
+    """Example user for --demo: a mix of taken, pending and empty days. Nothing is saved to disk."""
+    return {"name": "demo", "photo": "", "medicamentos": {
+        "Lunes": {"paracetamol": True},
+        "Martes": {"ibuprofeno": False, "vitamina D": True},
+        "Jueves": {"omeprazol": True},
+        "Viernes": {"paracetamol": False},
+    }}
 
 
 def today():
@@ -50,8 +60,9 @@ def to_ctk_image(frame_bgr, box):
 
 
 class App(ctk.CTk):
-    def __init__(self):
+    def __init__(self, demo=False):
         super().__init__(fg_color=BACKGROUND)
+        self.demo = demo
         self.title("MedGuiAR")
         self.geometry("1240x800")
         self.minsize(960, 660)
@@ -65,7 +76,7 @@ class App(ctk.CTk):
             "code": ctk.CTkFont(family="Menlo", size=13),
             "button": ctk.CTkFont(size=17, weight="bold"),
         }
-        self.camera = Camera(size=CAMERA_SIZE)
+        self.camera = DemoCamera(size=CAMERA_SIZE) if demo else Camera(size=CAMERA_SIZE)
         self._events = queue.Queue()
         self.screen = None
         self.protocol("WM_DELETE_WINDOW", self.close)
@@ -229,10 +240,15 @@ class WelcomeScreen(Screen):
             label.pack(anchor="w")
             self.step_labels.append(label)
 
-        ctk.CTkButton(text, text="Entrar con mi cara", height=56, width=300, corner_radius=14,
-                      font=self.fonts["button"], command=lambda: app.show(LoginScreen)).pack(anchor="w", pady=(32, 8))
-        ctk.CTkLabel(text, text="Necesita cámara, micrófono e internet (para la voz).",
-                     font=self.fonts["small"], text_color=MUTED).pack(anchor="w")
+        if app.demo:
+            button_text, note = "Entrar en la demo", "Modo demo: cámara simulada y usuario de ejemplo; no se guarda nada."
+            enter = lambda: app.show(MainScreen, user=demo_user())  # noqa: E731
+        else:
+            button_text, note = "Entrar con mi cara", "Necesita cámara, micrófono e internet (para la voz)."
+            enter = lambda: app.show(LoginScreen)  # noqa: E731
+        ctk.CTkButton(text, text=button_text, height=56, width=300, corner_radius=14,
+                      font=self.fonts["button"], command=enter).pack(anchor="w", pady=(32, 8))
+        ctk.CTkLabel(text, text=note, font=self.fonts["small"], text_color=MUTED).pack(anchor="w")
         text.bind("<Configure>", self._on_text_resize)
 
         self.hero_source = None
@@ -421,6 +437,9 @@ class MainScreen(CameraScreen):
         ctk.CTkLabel(header, text=f"   Hoy es {today().lower()}", font=self.fonts["body"],
                      text_color=MUTED).pack(side="left", pady=(6, 0))
         self.secondary_button(header, "Cerrar sesión", self.logout, width=150).pack(side="right")
+        if app.demo:
+            ctk.CTkLabel(header, text="Modo demo", font=self.fonts["small"], fg_color="#FEF3C7", text_color="#92400E",
+                         corner_radius=8, height=28).pack(side="right", padx=12, ipadx=8)
 
         # left: AR camera (grows with the window)
         video_card = self.card(self)
@@ -550,7 +569,8 @@ class MainScreen(CameraScreen):
                               ).pack(side="right", padx=6)
 
     def save(self):
-        storage.save_medications(self.user)
+        if not self.app.demo:
+            storage.save_medications(self.user)
         self.refresh_week()
 
     # --- actions (buttons and voice share them)
@@ -691,6 +711,6 @@ class MainScreen(CameraScreen):
         super().close()
 
 
-def main():
+def main(demo=False):
     ctk.set_appearance_mode("light")
-    App().mainloop()
+    App(demo=demo).mainloop()
