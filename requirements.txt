@@ -7,5 +7,6 @@ SpeechRecognition>=3.10
 PyAudio>=0.2.14
 numpy
 Pillow>=10
+customtkinter>=5.2
 # face_recognition_models usa pkg_resources, eliminado en setuptools 81
 setuptools<81
