@@ -2,7 +2,7 @@
 VENV := .venv
 PY   := $(VENV)/bin/python
 
-.PHONY: setup run test calibrate clean
+.PHONY: setup run demo test calibrate clean
 
 ## setup: instala dependencias del sistema, crea el entorno virtual e instala las librerías
 setup:
@@ -16,6 +16,10 @@ run: $(PY)
 
 $(PY):
 	$(MAKE) setup
+
+## demo: lanza la app con cámara simulada y un usuario de ejemplo (no hace falta webcam)
+demo: $(PY)
+	$(PY) MedGuiAR.py --demo
 
 ## test: ejecuta los tests unitarios (no necesitan cámara ni micrófono)
 test: $(PY)
