@@ -1,0 +1,11 @@
+# Probado en macOS (Apple Silicon) con Python 3.12 gestionado por uv (Tk 9.0).
+# Ojo: el Python de Homebrew trae Tk 9.1, que rompe tkinter.simpledialog en macOS.
+# contrib: incluye cv2.aruco.detectMarkers / calibrateCameraCharucoExtended (eliminadas del paquete base y de OpenCV 5)
+opencv-contrib-python>=4.7,<5
+face-recognition==1.3.0
+SpeechRecognition>=3.10
+PyAudio>=0.2.14
+numpy
+Pillow>=10
+# face_recognition_models usa pkg_resources, eliminado en setuptools 81
+setuptools<81

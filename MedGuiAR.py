@@ -47,7 +47,8 @@ def register_user(frame):
     root = Tk()
     root.withdraw()
     user_name = simpledialog.askstring("Autenticación","Introduce tu nombre:")
-    
+    root.destroy()
+
     image_path = save_user_image(frame)
     
     new_user = {
@@ -134,6 +135,9 @@ def authenticate_user():
 
     #si no se autentico ningun usuario, lo registra
     if not user_authenticated:
+        if frame is None:  # la cámara no devolvió imagen (p. ej. sin permiso)
+            print("No se pudo obtener imagen de la cámara")
+            return None
         new_user = register_user(frame)
         print(f"Usuario registrado: {new_user['name']}")
         return new_user
@@ -197,7 +201,7 @@ def voice_control(user):
     medicamentos = user.get('medicamentos', {})
     
     recognizer = sr.Recognizer()
-    MIC_INDEX = 0
+    MIC_INDEX = None  # micrófono predeterminado del sistema
     
     for index, name in enumerate(sr.Microphone.list_microphone_names()):
         print("Microphone with name \"{1}\" found for `Microphone(device_index={0})`".format(index, name))
@@ -350,12 +354,24 @@ canvas.pack(fill="both", expand=True)
 
 # Fondo
 fondo = Image.open('fondo.jpeg')
-fondo = fondo.resize((800, 600), Image.ANTIALIAS)
+fondo = fondo.resize((800, 600), Image.LANCZOS)
 fondo = ImageTk.PhotoImage(fondo)
 canvas.create_image(0, 0, image=fondo, anchor="nw")
 
-# Botón de inicio
-boton = Button(window, text="Iniciar", command=main, bg='black', fg='white', font=("Arial", 14), width=15, height=1)
+# Botón de inicio: cierra la ventana y arranca la app fuera del bucle de Tk
+# (en macOS, abrir ventanas de OpenCV dentro de un callback de Tk hace que Python aborte)
+iniciar = False
+
+def on_iniciar():
+    global iniciar
+    iniciar = True
+    window.quit()
+
+boton = Button(window, text="Iniciar", command=on_iniciar, bg='black', fg='white', font=("Arial", 14), width=15, height=1)
 boton.place(relx=0.5, rely=0.75, anchor='center')
 
 window.mainloop()
+window.destroy()
+
+if iniciar:
+    main()
