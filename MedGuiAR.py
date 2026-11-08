@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated")  # aviso de face_recognition_models
+
 import cv2
 import face_recognition
 import os
@@ -5,9 +8,19 @@ import json
 import speech_recognition as sr
 from tkinter import Tk, simpledialog, Canvas, Button
 import uuid
+import unicodedata
 import numpy as np
 from PIL import Image, ImageTk
 import threading
+
+
+DIAS_SEMANA = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+
+# Devuelve el día de la semana tal y como se guarda (con tildes), aceptando "miercoles" o "miércoles"
+def normalizar_dia(palabra):
+    def sin_tildes(texto):
+        return ''.join(c for c in unicodedata.normalize('NFD', texto.lower()) if unicodedata.category(c) != 'Mn')
+    return next((dia for dia in DIAS_SEMANA if sin_tildes(dia) == sin_tildes(palabra)), None)
 
 
 # Función para guardar la imagen del usuario
@@ -73,7 +86,7 @@ def authenticate_user():
     for user in users:
         try:
             
-            #cargando para cada usuario su iamgen y encoding facial
+            #cargando para cada usuario su imagen y encoding facial
             image = face_recognition.load_image_file(user['photo'])
             encodings = face_recognition.face_encodings(image)
             
@@ -147,7 +160,6 @@ def authenticate_user():
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 # Función para interactuar con el usuario mediante comandos de voz
 def voice_control(user):
-    dias_semana = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]
 
     def guardar_medicamentos():
         users = load_users()
@@ -166,9 +178,9 @@ def voice_control(user):
     def añadir_medicamento(command):
         try:
             parts = command.split()
-            day = parts[1].capitalize()
+            day = normalizar_dia(parts[1])
             med = parts[2]
-            if day in dias_semana:
+            if day:
                 if day not in medicamentos:
                     medicamentos[day] = {}
                 medicamentos[day][med] = False
@@ -182,9 +194,9 @@ def voice_control(user):
     def marcar_tomado(command):
         try:
             parts = command.split()
-            day = parts[1].capitalize()
+            day = normalizar_dia(parts[1])
             med = parts[2]
-            if day in dias_semana:
+            if day:
                 if day in medicamentos and med in medicamentos[day]:
                     medicamentos[day][med] = True
                     if all(medicamentos[day].values()):
@@ -268,7 +280,7 @@ def mostrar_dias(frame, corners, user):
             transformed_pts = cv2.perspectiveTransform(np.array([pts_day]), M)[0].astype(int)
 
             color = (255, 0, 0)  # Azul por defecto
-            day = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"][j]
+            day = DIAS_SEMANA[j]
             if day in dias_modificados:
                 if all(meds[day].values()):  # Si todos los medicamentos han sido tomados
                     color = (0, 255, 0)  # Verde
@@ -277,7 +289,7 @@ def mostrar_dias(frame, corners, user):
 
             cv2.fillPoly(frame, [transformed_pts], color)
             
-            # # Dibujar las letras directamente sobre el cuadro transformado
+            # Dibujar las letras directamente sobre el cuadro transformado
             center_x = (transformed_pts[0][0] + transformed_pts[2][0]) // 2
             center_y = (transformed_pts[0][1] + transformed_pts[2][1]) // 2
 

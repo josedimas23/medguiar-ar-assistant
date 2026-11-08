@@ -1,9 +1,19 @@
+# Sistema y editores
 .DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Python
 __pycache__/
 *.pyc
 .venv/
-# Datos personales (fotos de caras y usuarios): solo en local
+venv/
+*.egg-info/
+
+# Datos personales generados al usar la app (fotos de caras y usuarios): solo en local
 imagenes/
 users.json
-# Memoria con DNI: solo en local
+
+# Memoria de la práctica (contiene datos personales): solo en local
 PROYECTO FINAL - MedGuiAR.pdf
