@@ -1,0 +1,9 @@
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+# Datos personales (fotos de caras y usuarios): solo en local
+imagenes/
+users.json
+# Memoria con DNI: solo en local
+PROYECTO FINAL - MedGuiAR.pdf
